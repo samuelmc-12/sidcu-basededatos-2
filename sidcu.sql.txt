@@ -1,0 +1,215 @@
+CREATE DATABASE SIDCU;
+
+USE SIDCU;
+
+CREATE TABLE Usuario (
+    id_usuario INT IDENTITY(1,1) PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    correo VARCHAR(100) NOT NULL UNIQUE,
+    contrasena VARCHAR(100) NOT NULL,
+    edad INT NOT NULL CHECK (edad >= 14),
+    genero VARCHAR(10) NOT NULL CHECK (genero IN ('M','F')),
+    ciudad VARCHAR(100) NOT NULL,
+    fecha_registro DATE NOT NULL DEFAULT GETDATE()
+);
+
+
+CREATE TABLE Interes (
+    id_interes INT IDENTITY(1,1) PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL UNIQUE,
+    descripcion VARCHAR(255) NOT NULL
+);
+
+
+CREATE TABLE Usuario_Interes (
+    id_usuario INT,
+    id_interes INT,
+    nivel INT NOT NULL CHECK (nivel BETWEEN 1 AND 5),
+    PRIMARY KEY (id_usuario, id_interes),
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario),
+    FOREIGN KEY (id_interes) REFERENCES Interes(id_interes)
+);
+
+
+CREATE TABLE Test (
+    id_test INT IDENTITY(1,1) PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL UNIQUE,
+    descripcion VARCHAR(255) NOT NULL
+);
+
+
+CREATE TABLE Pregunta (
+    id_pregunta INT IDENTITY(1,1) PRIMARY KEY,
+    id_test INT NOT NULL,
+    texto VARCHAR(255) NOT NULL,
+    FOREIGN KEY (id_test) REFERENCES Test(id_test)
+);
+
+
+CREATE TABLE Pregunta_Interes (
+    id_pregunta INT,
+    id_interes INT,
+    PRIMARY KEY (id_pregunta, id_interes),
+    FOREIGN KEY (id_pregunta) REFERENCES Pregunta(id_pregunta),
+    FOREIGN KEY (id_interes) REFERENCES Interes(id_interes)
+);
+
+
+CREATE TABLE Respuesta (
+    id_respuesta INT IDENTITY(1,1) PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    id_pregunta INT NOT NULL,
+    valor INT NOT NULL CHECK (valor BETWEEN 1 AND 5),
+    fecha DATE DEFAULT GETDATE(),
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario),
+    FOREIGN KEY (id_pregunta) REFERENCES Pregunta(id_pregunta)
+);
+
+
+CREATE TABLE Resultado_Test (
+    id_resultado INT IDENTITY(1,1) PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    id_test INT NOT NULL,
+    puntaje_total DECIMAL(5,2) NOT NULL DEFAULT 0,
+    fecha DATE DEFAULT GETDATE(),
+    FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario),
+    FOREIGN KEY (id_test) REFERENCES Test(id_test)
+);
+
+CREATE TABLE Resultado_Interes (
+    id_resultado INT,
+    id_interes INT,
+    puntaje DECIMAL(5,2) NOT NULL DEFAULT 0,
+    PRIMARY KEY (id_resultado, id_interes),
+    FOREIGN KEY (id_resultado) REFERENCES Resultado_Test(id_resultado),
+    FOREIGN KEY (id_interes) REFERENCES Interes(id_interes)
+);
+
+CREATE TABLE Carrera (
+    id_carrera INT IDENTITY(1,1) PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL UNIQUE,
+    descripcion VARCHAR(255) NOT NULL,
+    area VARCHAR(100) NOT NULL,
+    duracion INT NOT NULL CHECK (duracion > 0),
+    salario DECIMAL(10,2) NOT NULL CHECK (salario > 0)
+);
+
+CREATE TABLE Carrera_Interes (
+    id_carrera INT,
+    id_interes INT,
+    PRIMARY KEY (id_carrera, id_interes),
+    FOREIGN KEY (id_carrera) REFERENCES Carrera(id_carrera),
+    FOREIGN KEY (id_interes) REFERENCES Interes(id_interes)
+);
+
+
+INSERT INTO Usuario (nombre, correo, contrasena, edad, genero, ciudad) VALUES
+('Alejandra Meza','alejandra@gmail.com','123',17,'F','Barranquilla'),
+('Samuel Muñoz','samuel@gmail.com','123',18,'M','Bello'),
+('Jefry Lopez','jefry@gmail.com','123',17,'M','Medellin'),
+('Laura Gomez','laura@gmail.com','123',16,'F','Envigado'),
+('Carlos Perez','carlos@gmail.com','123',18,'M','Itagui'),
+('Maria Torres','maria@gmail.com','123',17,'F','Medellin'),
+('Juan Rodriguez','juan@gmail.com','123',18,'M','Bello'),
+('Sofia Lopez','sofia@gmail.com','123',16,'F','Medellin'),
+('Daniel Castro','daniel@gmail.com','123',17,'M','Envigado'),
+('Valentina Ruiz','valentina@gmail.com','123',18,'F','Medellin');
+
+INSERT INTO Interes (nombre, descripcion) VALUES
+('Tecnologia','Computadores'),
+('Salud','Medicina'),
+('Arte','Creatividad'),
+('Negocios','Empresas'),
+('Matematicas','Numeros'),
+('Social','Ayuda'),
+('Creatividad','Innovar'),
+('Analisis','Pensar'),
+('Diseño','Visual'),
+('Comunicacion','Hablar');
+
+INSERT INTO Usuario_Interes VALUES
+(1,1,5),(1,5,4),(2,2,4),(3,3,3),(4,4,5),
+(5,5,4),(6,6,5),(7,7,3),(8,8,4),(9,9,5),(10,10,4);
+
+
+INSERT INTO Test (nombre, descripcion) VALUES
+('Vocacional','Intereses'),
+('Profesional','Habilidades'),
+('Creativo','Creatividad'),
+('Logico','Logica'),
+('Social','Relaciones');
+
+SELECT * FROM Test;
+
+INSERT INTO Pregunta (id_test, texto) VALUES
+(1,'Te gusta programar'),
+(1,'Te gusta medicina'),
+(1,'Te gusta dibujar'),
+(1,'Te gustan negocios'),
+(1,'Te gustan numeros'),
+(1,'Ayudar personas'),
+(1,'Eres creativo'),
+(1,'Analizar'),
+(1,'Diseñar'),
+(1,'Hablar');
+
+INSERT INTO Pregunta_Interes VALUES
+(1,1),(2,2),(3,3),(4,4),(5,5),
+(6,6),(7,7),(8,8),(9,9),(10,10);
+
+INSERT INTO Respuesta (id_usuario, id_pregunta, valor) VALUES
+(1,1,5),(1,2,4),(2,3,3),(2,4,5),(3,5,4),
+(4,6,5),(5,7,3),(6,8,4),(7,9,5),(8,10,4);
+
+INSERT INTO Resultado_Test (id_usuario, id_test, puntaje_total) VALUES
+(1,1,85),(2,1,80),(3,1,70),(4,1,90),(5,1,88),
+(6,1,85),(7,1,75),(8,1,82),(9,1,91),(10,1,87);
+
+INSERT INTO Resultado_Interes VALUES
+(1,1,9),(2,2,8),(3,3,7),(4,4,9),(5,5,8),
+(6,6,9),(7,7,7),(8,8,8),(9,9,9),(10,10,8);
+
+INSERT INTO Carrera (nombre, descripcion, area, duracion, salario) VALUES
+('Ing Sistemas','Software','Tecnologia',5,3500000),
+('Medicina','Salud','Salud',6,5000000),
+('Psicologia','Mente','Salud',5,2500000),
+('Administracion','Empresas','Negocios',4,3000000),
+('Diseño Grafico','Visual','Arte',4,2200000),
+('Marketing','Publicidad','Negocios',4,2800000),
+('Ing Civil','Construccion','Ingenieria',5,4000000),
+('Contaduria','Finanzas','Negocios',4,2600000),
+('Arquitectura','Diseño','Diseño',5,3200000),
+('Derecho','Leyes','Social',5,3000000);
+
+INSERT INTO Carrera_Interes VALUES
+(1,1),(2,2),(3,2),(4,4),(5,3),
+(6,4),(7,5),(8,4),(9,9),(10,10);
+
+--Aca van las consultas
+
+--Total usuarios
+SELECT COUNT(*) AS total_usuarios FROM Usuario;
+
+--Intereses por usuario
+SELECT U.nombre, COUNT(UI.id_interes) AS intereses
+FROM Usuario U
+INNER JOIN Usuario_Interes UI ON U.id_usuario = UI.id_usuario
+GROUP BY U.nombre;
+
+--Promedio por interes
+SELECT I.nombre, AVG(RI.puntaje) AS promedio
+FROM Resultado_Interes RI
+INNER JOIN Interes I ON RI.id_interes = I.id_interes
+GROUP BY I.nombre
+HAVING AVG(RI.puntaje) > 7;
+
+--Carreras por cantidad de intereses
+SELECT C.nombre, COUNT(*) AS cantidad
+FROM Carrera C
+INNER JOIN Carrera_Interes CI ON C.id_carrera = CI.id_carrera
+GROUP BY C.nombre;
+
+--Usuarios recientes
+SELECT nombre, fecha_registro
+FROM Usuario
+WHERE fecha_registro >= DATEADD(DAY, -30, GETDATE());
